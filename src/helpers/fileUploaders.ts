@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
 
   return new Promise((resolve, rejects)=> {
     cloudinary.uploader.upload(file.path, 
-      // {public_id: path.originalname },
+      // { folder: "my_folder" },
       (error:Error, result:ICloudinary) => {
         fs.unlinkSync(file.path)
         if(error){

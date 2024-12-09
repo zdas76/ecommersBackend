@@ -7,29 +7,51 @@ import sendResponst from "../../../shared/sendResponst";
 import { StatusCodes } from "http-status-codes";
 import { UserfiltersFields } from "./User.constant";
 
-const creatUser = catchAsync(async (req, res) => {
-  const result = await UserService.creatUser(req);
+const creatCustomer = catchAsync(async (req, res) => {
+
+  const result = await UserService.createCustomer(req);
 
   res.status(200).json({
     success: true,
-    message: "User Created Successfuly!",
+    message: "Customer Created Successfuly!",
     data: result,
   })
 });
 
-const getAllUser = catchAsync(async (req, res) => {
-  const filters = pick(req.query, UserfiltersFields);
-  const paginat = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+const creatVendor = catchAsync(async (req, res) => {
+  
+  const result = await UserService.creatVendortoDB(req);
 
-  const result = await UserService.getAllPatientFromBD(filters, paginat);
-  sendResponst(res, {
-    statusCode: StatusCodes.OK,
+  res.status(200).json({
     success: true,
-    message: "User Data fatched",
-    meta: result.meta,
-    data: result.data,
-  });
+    message: "Vendor Created Successfuly!",
+    data: result,
+  })
 });
+
+const creatAdmin = catchAsync(async (req, res) => {
+  const result = await UserService.creatAdmintoDB(req);
+
+  res.status(200).json({
+    success: true,
+    message: "Admin Created Successfuly!",
+    data: result,
+  })
+});
+
+// const getAllUser = catchAsync(async (req, res) => {
+//   const filters = pick(req.query, UserfiltersFields);
+//   const paginat = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+
+//   const result = await UserService.getAllPatientFromBD(filters, paginat);
+//   sendResponst(res, {
+//     statusCode: StatusCodes.OK,
+//     success: true,
+//     message: "User Data fatched",
+//     meta: result.meta,
+//     data: result.data,
+//   });
+// });
 
 // const changeProfileSTatus = catchAsync(async (req, res) => {
 //   const { id } = req.params;
@@ -73,8 +95,10 @@ const getAllUser = catchAsync(async (req, res) => {
 // );
 
 export const userController = {
-  creatUser,
-  getAllUser,
+  creatCustomer,
+  creatVendor,
+  creatAdmin,
+  // getAllUser,
 //   changeProfileSTatus,
 //   getMyProfile,
 //   updateMyProfile,

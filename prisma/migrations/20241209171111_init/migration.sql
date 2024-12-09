@@ -1,25 +1,27 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `address` on the `users` table. All the data in the column will be lost.
-  - You are about to drop the column `contactNumber` on the `users` table. All the data in the column will be lost.
-  - You are about to drop the column `isDeleted` on the `users` table. All the data in the column will be lost.
-  - You are about to drop the column `name` on the `users` table. All the data in the column will be lost.
-  - You are about to drop the column `profilePhoto` on the `users` table. All the data in the column will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PROCESSING', 'DELIVERED', 'CANCELLED');
 
 -- CreateEnum
 CREATE TYPE "PyamentStatus" AS ENUM ('UNPAID', 'PAID');
 
--- AlterTable
-ALTER TABLE "users" DROP COLUMN "address",
-DROP COLUMN "contactNumber",
-DROP COLUMN "isDeleted",
-DROP COLUMN "name",
-DROP COLUMN "profilePhoto";
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'VENDOR', 'CUSTOMER');
+
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'SUSPENED', 'BLOCKED', 'DELETED');
+
+-- CreateTable
+CREATE TABLE "users" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "passWord" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL,
+    "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "admins" (
@@ -41,12 +43,11 @@ CREATE TABLE "vendors" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "profilePhoto" TEXT,
     "contactNumber" TEXT,
     "address" TEXT,
     "shopName" TEXT NOT NULL,
     "shoplogo" TEXT NOT NULL,
-    "shopDiscription" TEXT NOT NULL,
+    "shopDescription" TEXT NOT NULL,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -62,9 +63,6 @@ CREATE TABLE "customers" (
     "profilePhoto" TEXT,
     "contactNumber" TEXT,
     "address" TEXT,
-    "shopName" TEXT NOT NULL,
-    "shoplogo" TEXT NOT NULL,
-    "shopDiscription" TEXT NOT NULL,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -75,9 +73,15 @@ CREATE TABLE "customers" (
 -- CreateTable
 CREATE TABLE "followers" (
     "vendorId" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
 
-    CONSTRAINT "followers_pkey" PRIMARY KEY ("vendorId","userId")
+    CONSTRAINT "followers_pkey" PRIMARY KEY ("vendorId","customerId")
+);
+
+-- CreateTable
+CREATE TABLE "Category" (
+    "id" TEXT NOT NULL,
+    "categoryName" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -102,6 +106,38 @@ CREATE TABLE "coupons" (
     "productId" TEXT NOT NULL
 );
 
+-- CreateTable
+CREATE TABLE "payments" (
+    "id" TEXT NOT NULL,
+    "txId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "getwayData" JSONB NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "orders" (
+    "Id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "vendorId" TEXT NOT NULL,
+    "status" "OrderStatus" NOT NULL,
+    "totalPrice" DOUBLE PRECISION NOT NULL,
+    "paymentId" TEXT NOT NULL,
+    "paymentStatus" "PyamentStatus" NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Review" (
+    "id" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "reting" INTEGER NOT NULL,
+    "productId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "admins_email_key" ON "admins"("email");
 
@@ -112,10 +148,22 @@ CREATE UNIQUE INDEX "vendors_email_key" ON "vendors"("email");
 CREATE UNIQUE INDEX "customers_email_key" ON "customers"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Category_categoryName_key" ON "Category"("categoryName");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "products_id_key" ON "products"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "coupons_code_key" ON "coupons"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payments_id_key" ON "payments"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "orders_Id_key" ON "orders"("Id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Review_id_key" ON "Review"("id");
 
 -- AddForeignKey
 ALTER TABLE "admins" ADD CONSTRAINT "admins_email_fkey" FOREIGN KEY ("email") REFERENCES "users"("email") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -130,7 +178,7 @@ ALTER TABLE "customers" ADD CONSTRAINT "customers_email_fkey" FOREIGN KEY ("emai
 ALTER TABLE "followers" ADD CONSTRAINT "followers_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "vendors"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "followers" ADD CONSTRAINT "followers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "followers" ADD CONSTRAINT "followers_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "products" ADD CONSTRAINT "products_categoryName_fkey" FOREIGN KEY ("categoryName") REFERENCES "Category"("categoryName") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -140,3 +188,18 @@ ALTER TABLE "products" ADD CONSTRAINT "products_vendorId_fkey" FOREIGN KEY ("ven
 
 -- AddForeignKey
 ALTER TABLE "coupons" ADD CONSTRAINT "coupons_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "orders" ADD CONSTRAINT "orders_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "orders" ADD CONSTRAINT "orders_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "vendors"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "orders" ADD CONSTRAINT "orders_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "payments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Review" ADD CONSTRAINT "Review_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

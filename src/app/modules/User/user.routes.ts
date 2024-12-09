@@ -20,39 +20,40 @@ const router = express.Router();
 //   userController.getMyProfile
 // );
 
-// router.post(
-//   "/create-admin",
-//   auth(UserRole.ADMIN ),
-//   fileUploaders.upload.single("file"),
-//   (req: Request, res: Response, next: NextFunction) => {
-//     req.body = userValidation.createAdminValidation.parse(
-//       JSON.parse(req.body.data)
-//     );
-//     return userController.creatAdmin(req, res, next);
-//   }
-// );
-
 router.post(
-  "/",
-    fileUploaders.upload.single("file"),
-    (req: Request, res: Response, next: NextFunction) => {
-      userValidation.createUserValidation.parse(
-      JSON.parse(req.body.data)
+  "/create-admin",
+  // auth(UserRole.ADMIN ),
+  fileUploaders.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.createAdminValidation.parse(
+      JSON.parse(req.body.admin)
     );
-    return userController.creatUser(req, res, next);
+    return userController.creatAdmin(req, res, next);
   }
 );
 
-// router.post(
-//   "/create-patient",
-//   fileUploaders.upload.single("file"),
-//   (req: Request, res: Response, next: NextFunction) => {
-//     req.body = userValidation.createDoctorValidation.parse(
-//       JSON.parse(req.body.data)
-//     );
-//     return userController.creatDoctor(req, res, next);
-//   }
-// );
+router.post(
+  "/create-customer",
+    fileUploaders.upload.single("file"),
+    (req: Request, res: Response, next: NextFunction) => {
+      req.body = userValidation.createCustomerValidation.parse(
+      JSON.parse(req.body.customer)
+    );
+    return userController.creatCustomer(req, res, next);
+  }
+);
+
+router.post(
+  "/create-vendor",
+  fileUploaders.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.createVendorValidation.parse(
+      JSON.parse(req.body.vendor)
+    );
+    
+    return userController.creatVendor(req, res, next);
+  }
+);
 
 // router.patch(
 //   "/:id/status",

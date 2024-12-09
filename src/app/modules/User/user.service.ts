@@ -1,4 +1,5 @@
-import { Prisma, UserRole, UserStatus } from "@prisma/client";
+import { Admin, Vendor } from './../../../../node_modules/.prisma/client/index.d';
+import { Prisma, UserRole,  } from "@prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "../../../shared/prisma";
 import { fileUploaders } from "../../../helpers/fileUploaders";
@@ -8,9 +9,12 @@ import { paginationHelper } from "../../../helpers/paginationHelpers";
 import { UserSearchAbleFields } from "./User.constant";
 import { IFile } from "../../interfaces/file";
 import { IAuthUser } from "../../interfaces/common";
+import ApiErrors from '../../errors/ApiErrors';
+import { StatusCodes } from 'http-status-codes';
 
-const creatUser = async (req: Request) => {
-    
+// Create Customer
+const createCustomer = async (req: Request) => {
+  
   const file = req.file;
   if (file) {
     const uploadTOCloudinary: any = await fileUploaders.uploadTOCloudinary(
@@ -20,56 +24,139 @@ const creatUser = async (req: Request) => {
   }
 
   const data = req.body;
+  
 
-  await prisma.user.findUniqueOrThrow({
+  const isExist = await prisma.user.findUnique({
     where: {
       email: data.email
     }
   })
+
+  if(isExist){
+    throw new ApiErrors(StatusCodes.FORBIDDEN, "this user already exiest")
+  }
   
   const hassPassWord: string = await bcrypt.hash(data.passWord, 12);
   data.passWord = hassPassWord;
 
-  const result = await prisma.user.create({
-      data:data
+  const userData = {
+    email: data.email,
+    passWord: hassPassWord,
+    role: UserRole.CUSTOMER,
+  };
+  
+  const {passWord, role, ...customerData} = data;
+
+  const result = await prisma.$transaction(async(txc) => {
+await txc.user.create({
+  data:userData
+});
+
+const customer = await txc.customer.create({
+  data: customerData
+})
+return customer
+  })
+  
+ return result;
+};
+
+
+// Create Vendor
+
+const creatVendortoDB = async (req: Request) => {
+  
+  const file = req.file;
+  
+  if (file) {
+    const uploadTOCloudinary: any = await fileUploaders.uploadTOCloudinary(
+      file
+    );
+    req.body.shoplogo = uploadTOCloudinary.secure_url;
+  }
+  
+  const data = req.body;
+
+  const isExist = await prisma.user.findUnique({
+    where: {
+      email: data.email
+    }
+  })
+
+  if(isExist){
+    throw new ApiErrors(StatusCodes.FORBIDDEN, "this user already exiest")
+  }
+
+  const hassPassWord: string = await bcrypt.hash(data.passWord, 12);
+  
+  const userData = {
+    email: data.email,
+    passWord: hassPassWord,
+    role: UserRole.VENDOR,
+  };
+
+  const {passWord, role, ...vendorData} = data;
+
+  const result = await prisma.$transaction(async (txc) => {
+    await txc.user.create({
+      data: userData,
     });
+
+    const createVandor = await txc.vendor.create({
+      data: vendorData,
+    });
+
+    return createVandor;
+  });
 
   return result;
 };
 
-// const creatVendortoDB = async (req: Request) => {
-//   const file = req.file;
-//   if (file) {
-//     const uploadTOCloudinary: any = await fileUploaders.uploadTOCloudinary(
-//       file
-//     );
-//     req.body.doctor.profilePhoto = uploadTOCloudinary.secure_url;
-//   }
+const creatAdmintoDB = async (req: Request) => {
+  const file = req.file;
+  if (file) {
+    const uploadTOCloudinary: any = await fileUploaders.uploadTOCloudinary(
+      file
+    );
+    req.body.admin.profilePhoto = uploadTOCloudinary.secure_url;
+  }
 
-//   const data = req.body;
+  const data = req.body.admin;
 
-//   const hassPassWord: string = await bcrypt.hash(data.password, 12);
+  const isExist = await prisma.user.findUnique({
+    where: {
+      email: data.email
+    }
+  })
 
-//   const userData = {
-//     email: data.doctor.email,
-//     passWord: hassPassWord,
-//     role: UserRole.VENDOR,
-//   };
+  if(isExist){
+    throw new ApiErrors(StatusCodes.FORBIDDEN, "this user already exiest")
+  }
 
-//   const result = await prisma.$transaction(async (transactionClient) => {
-//     await transactionClient.user.create({
-//       data: userData,
-//     });
+  const hassPassWord: string = await bcrypt.hash(data.passWord, 12);
 
-//     const createDoctorData = await transactionClient.vendor.create({
-//       data: data.doctor,
-//     });
+  const userData = {
+    email: data.email,
+    passWord: hassPassWord,
+    role: UserRole.ADMIN,
+  };
 
-//     return createDoctorData;
-//   });
+  const {passWord, role, ...adminData} = data;
 
-//   return result;
-// };
+  const result = await prisma.$transaction(async (txc) => {
+    await txc.user.create({
+      data: userData,
+    });
+
+    const createAdmin = await txc.admin.create({
+      data: adminData,
+    });
+
+    return createAdmin;
+  });
+
+  return result;
+};
 
 
 
@@ -256,9 +343,7 @@ const creatUser = async (req: Request) => {
 // }
 
 export const UserService = {
-  creatUser,
-  // getAllPatientFromBD,
-//   changeProfileStatusToDB,
-//   getMyProfile,
-//   updateMyProfile,
+  createCustomer,
+  creatVendortoDB,
+  creatAdmintoDB
 };

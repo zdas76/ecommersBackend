@@ -24,7 +24,6 @@ model User {
   admin     Admin?
   Vendor    Vendor?
   Customer  Customer?
-  Follow    Follow[]
 
   @@map("users")
 }
@@ -49,12 +48,11 @@ model Vendor {
   id              String   @id @default(uuid())
   name            String
   email           String   @unique
-  profilePhoto    String?
   contactNumber   String?
   address         String?
   shopName        String
   shoplogo        String
-  shopDiscription String
+  shopDescription String
   isDeleted       Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -62,6 +60,7 @@ model Vendor {
   user    User      @relation(fields: [email], references: [email])
   Follow  Follow[]
   Product Product[]
+  Order   Order[]
 
   @@map("vendors")
 }
@@ -73,14 +72,14 @@ model Customer {
   profilePhoto    String?
   contactNumber   String?
   address         String?
-  shopName        String
-  shoplogo        String
-  shopDiscription String
   isDeleted       Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user User @relation(fields: [email], references: [email])
+  user   User     @relation(fields: [email], references: [email])
+  Follow Follow[]
+  Order  Order[]
+  Review Review[]
 
   @@map("customers")
 }
@@ -89,10 +88,10 @@ model Follow {
   vendorId  String
   followers Vendor @relation(fields: [vendorId], references: [id])
 
-  userId    String
-  following User   @relation(fields: [userId], references: [id])
+  customerId String
+  following  Customer @relation(fields: [customerId], references: [id])
 
-  @@id([vendorId, userId])
+  @@id([vendorId, customerId])
   @@map("followers")
 }
 
@@ -103,7 +102,7 @@ model Category {
 }
 
 model Product {
-  id           String   @default(uuid()) @unique
+  id           String   @unique @default(uuid())
   title        String
   description  String
   productImage String[]
@@ -115,6 +114,7 @@ model Product {
   vendorId     String
   vendor       Vendor   @relation(fields: [vendorId], references: [id])
   coupon       Coupon[]
+  Review       Review[]
 
   @@map("products")
 }
@@ -128,6 +128,43 @@ model Coupon {
   product      Product  @relation(fields: [productId], references: [id])
 
   @@map("coupons")
+}
+
+model Payment {
+  id         String @unique @default(uuid())
+  txId       String
+  amount     Float
+  getwayData Json
+
+  Order Order[]
+
+  @@map("payments")
+}
+
+model Order {
+  Id            String        @unique @default(uuid())
+  userId        String
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  vendorId      String
+  vendor        Vendor        @relation(fields: [vendorId], references: [id])
+  status        OrderStatus
+  totalPrice    Float
+  paymentId     String
+  payment       Payment       @relation(fields: [paymentId], references: [id])
+  paymentStatus PyamentStatus
+
+  @@map("orders")
+}
+
+model Review {
+  id          String   @unique @default(uuid())
+  description String
+  reting      Int
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
 }
 
 enum OrderStatus {
@@ -145,7 +182,7 @@ enum PyamentStatus {
 enum UserRole {
   ADMIN
   VENDOR
-  COSTOMER
+  CUSTOMER
 }
 
 enum UserStatus {
