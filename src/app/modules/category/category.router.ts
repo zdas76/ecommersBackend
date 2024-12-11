@@ -17,6 +17,6 @@ route.get("/:id", CategoryController.getOneCagetory);
 
 route.patch("/:id", CategoryController.updateCagetory);
 
-route.delete("/:id", CategoryController.deleteCagetory);
+// route.delete("/:id", CategoryController.deleteCagetory);
 
 export const CategoryRouter = route;

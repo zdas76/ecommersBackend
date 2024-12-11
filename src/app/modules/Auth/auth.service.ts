@@ -31,13 +31,13 @@ const loginUser = async (payLoad: { email: string; passWord: string }) => {
   }
 
   const accessToken = JwtHelpers.generateToken(
-    { name: userData.name, email: userData.email, role: userData.role },
+    { email: userData.email, role: userData.role },
     config.jwt.secret as Secret,
     config.jwt.expires as string
   );
 
   const refreshToken = JwtHelpers.generateToken(
-    { name: userData.name, email: userData.email, role: userData.role },
+    {  email: userData.email, role: userData.role },
     config.jwt.refresh_token as Secret,
     config.jwt.refresh_expires as string
   );
@@ -67,7 +67,7 @@ const refreshToken = async (token: string) => {
   });
 
   const accessToken = JwtHelpers.generateToken(
-    {name: checkUser.name, email: checkUser.email, role: checkUser.role },
+    {email: checkUser.email, role: checkUser.role },
     config.jwt.secret as Secret,
     config.jwt.expires as string
   );

@@ -81,7 +81,11 @@ CREATE TABLE "followers" (
 -- CreateTable
 CREATE TABLE "Category" (
     "id" TEXT NOT NULL,
-    "categoryName" TEXT NOT NULL
+    "categoryName" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -94,7 +98,11 @@ CREATE TABLE "products" (
     "quantity" INTEGER NOT NULL,
     "discount" DOUBLE PRECISION NOT NULL,
     "categoryName" TEXT NOT NULL,
-    "vendorId" TEXT NOT NULL
+    "vendorId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -103,7 +111,11 @@ CREATE TABLE "coupons" (
     "code" TEXT NOT NULL,
     "discountRate" DOUBLE PRECISION NOT NULL,
     "expiryDAte" TIMESTAMP(3) NOT NULL,
-    "productId" TEXT NOT NULL
+    "productId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "coupons_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -111,7 +123,11 @@ CREATE TABLE "payments" (
     "id" TEXT NOT NULL,
     "txId" TEXT NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
-    "getwayData" JSONB NOT NULL
+    "getwayData" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -123,7 +139,11 @@ CREATE TABLE "orders" (
     "status" "OrderStatus" NOT NULL,
     "totalPrice" DOUBLE PRECISION NOT NULL,
     "paymentId" TEXT NOT NULL,
-    "paymentStatus" "PyamentStatus" NOT NULL
+    "paymentStatus" "PyamentStatus" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "orders_pkey" PRIMARY KEY ("Id")
 );
 
 -- CreateTable
@@ -132,7 +152,11 @@ CREATE TABLE "Review" (
     "description" TEXT NOT NULL,
     "reting" INTEGER NOT NULL,
     "productId" TEXT NOT NULL,
-    "customerId" TEXT NOT NULL
+    "customerId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -155,15 +179,6 @@ CREATE UNIQUE INDEX "products_id_key" ON "products"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "coupons_code_key" ON "coupons"("code");
-
--- CreateIndex
-CREATE UNIQUE INDEX "payments_id_key" ON "payments"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "orders_Id_key" ON "orders"("Id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Review_id_key" ON "Review"("id");
 
 -- AddForeignKey
 ALTER TABLE "admins" ADD CONSTRAINT "admins_email_fkey" FOREIGN KEY ("email") REFERENCES "users"("email") ON DELETE RESTRICT ON UPDATE CASCADE;

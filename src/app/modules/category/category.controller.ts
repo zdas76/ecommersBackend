@@ -23,7 +23,7 @@ const getCagetory = catchAsync(async(req, res) => {
     sendResponst(res, {
         statusCode: StatusCodes.OK,
         success: true,
-        message: "Categories revers Successfully",
+        message: "Categories retrives Successfully",
         data: reselt,
       });
 })
@@ -31,7 +31,8 @@ const getCagetory = catchAsync(async(req, res) => {
 
 const getOneCagetory = catchAsync(async(req, res) => {
 
-    const reselt = await CategoryService.getOneCategory()
+    const reselt = await CategoryService.getOneCategory(req.params.id)
+    console.log("first", reselt)
 
     sendResponst(res, {
         statusCode: StatusCodes.OK,
@@ -44,7 +45,7 @@ const getOneCagetory = catchAsync(async(req, res) => {
 
 const updateCagetory = catchAsync(async(req, res) => {
 
-    const reselt = await CategoryService.updateCategory()
+    const reselt = await CategoryService.updateCategory(req.params.id as string, req.body)
 
     sendResponst(res, {
         statusCode: StatusCodes.OK,
@@ -55,17 +56,17 @@ const updateCagetory = catchAsync(async(req, res) => {
 })
 
 
-const deleteCagetory = catchAsync(async(req, res) => {
+// const deleteCagetory = catchAsync(async(req, res) => {
 
-    const reselt = await CategoryService.deleteCategory()
+//     const reselt = await CategoryService.deleteCategory()
 
-    sendResponst(res, {
-        statusCode: StatusCodes.OK,
-        success: true,
-        message: "Category deleted Successfully",
-        data: reselt,
-      });
-})
+//     sendResponst(res, {
+//         statusCode: StatusCodes.OK,
+//         success: true,
+//         message: "Category deleted Successfully",
+//         data: reselt,
+//       });
+// })
 
 
 export const CategoryController = {
@@ -73,5 +74,4 @@ export const CategoryController = {
     getCagetory,
     getOneCagetory,
     updateCagetory,
-    deleteCagetory
 }

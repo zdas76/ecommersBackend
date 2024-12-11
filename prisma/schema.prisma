@@ -66,15 +66,15 @@ model Vendor {
 }
 
 model Customer {
-  id              String   @id @default(uuid())
-  name            String
-  email           String   @unique
-  profilePhoto    String?
-  contactNumber   String?
-  address         String?
-  isDeleted       Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  profilePhoto  String?
+  contactNumber String?
+  address       String?
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user   User     @relation(fields: [email], references: [email])
   Follow Follow[]
@@ -96,45 +96,54 @@ model Follow {
 }
 
 model Category {
-  id           String    @default(uuid())
+  id           String    @id @default(uuid())
   categoryName String    @unique
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   Product      Product[]
 }
 
 model Product {
-  id           String   @unique @default(uuid())
+  id           String   @id @unique @default(uuid())
   title        String
   description  String
   productImage String[]
   price        Float
   quantity     Int
-  discount     Float
-  categoryName String
-  category     Category @relation(fields: [categoryName], references: [categoryName])
+  discount     Float?
+  categoryId   String
   vendorId     String
-  vendor       Vendor   @relation(fields: [vendorId], references: [id])
-  coupon       Coupon[]
-  Review       Review[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+  vendor   Vendor   @relation(fields: [vendorId], references: [id])
+  coupon   Coupon[]
+  Review   Review[]
 
   @@map("products")
 }
 
 model Coupon {
-  id           String   @default(uuid())
+  id           String   @id @default(uuid())
   code         String   @unique
   discountRate Float
   expiryDAte   DateTime
   productId    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   product      Product  @relation(fields: [productId], references: [id])
 
   @@map("coupons")
 }
 
 model Payment {
-  id         String @unique @default(uuid())
+  id         String   @id @default(uuid())
   txId       String
   amount     Float
   getwayData Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   Order Order[]
 
@@ -142,7 +151,7 @@ model Payment {
 }
 
 model Order {
-  Id            String        @unique @default(uuid())
+  Id            String        @id @default(uuid())
   userId        String
   customerId    String
   customer      Customer      @relation(fields: [customerId], references: [id])
@@ -153,18 +162,22 @@ model Order {
   paymentId     String
   payment       Payment       @relation(fields: [paymentId], references: [id])
   paymentStatus PyamentStatus
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@map("orders")
 }
 
 model Review {
-  id          String   @unique @default(uuid())
+  id          String   @id @default(uuid())
   description String
   reting      Int
   productId   String
   product     Product  @relation(fields: [productId], references: [id])
   customerId  String
   customer    Customer @relation(fields: [customerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum OrderStatus {

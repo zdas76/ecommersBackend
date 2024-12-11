@@ -32,3 +32,4 @@ export interface ICloudinary {
     path: string;
     size: number;
   }
+

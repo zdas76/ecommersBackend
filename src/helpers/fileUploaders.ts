@@ -39,6 +39,7 @@ const storage = multer.diskStorage({
     )
   }) 
 
+ 
 
   
   // OR its working
@@ -61,7 +62,30 @@ const storage = multer.diskStorage({
   //   return uploadResult
  }
 
+ const uploadToCloudinaryMultipu = async (files: IFile[]): Promise<string[]> => {
+  const uploadPromises = files.map((file) =>
+    new Promise<string>((resolve, reject) => {
+      cloudinary.uploader.upload(
+        file.path,
+        
+        (error, result) => {
+        
+          fs.unlinkSync(file.path);
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result?.secure_url as string);
+          }
+        }
+      );
+    })
+  );
+
+  return Promise.all(uploadPromises); // Wait for all uploads to complete
+};
+
   export const fileUploaders = {
     upload,
-    uploadTOCloudinary
+    uploadTOCloudinary,
+    uploadToCloudinaryMultipu
   }

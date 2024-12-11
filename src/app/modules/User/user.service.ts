@@ -20,10 +20,10 @@ const createCustomer = async (req: Request) => {
     const uploadTOCloudinary: any = await fileUploaders.uploadTOCloudinary(
       file
     );
-    req.body.profilePhoto = uploadTOCloudinary.secure_url;
+    req.body.customer.profilePhoto = uploadTOCloudinary.secure_url;
   }
 
-  const data = req.body;
+  const data = req.body.customer;
   
 
   const isExist = await prisma.user.findUnique({
@@ -72,10 +72,11 @@ const creatVendortoDB = async (req: Request) => {
     const uploadTOCloudinary: any = await fileUploaders.uploadTOCloudinary(
       file
     );
-    req.body.shoplogo = uploadTOCloudinary.secure_url;
+    req.body.vendor.shoplogo = uploadTOCloudinary.secure_url;
   }
   
-  const data = req.body;
+  const data = req.body.vendor;
+  console.log(data)
 
   const isExist = await prisma.user.findUnique({
     where: {
@@ -111,6 +112,8 @@ const creatVendortoDB = async (req: Request) => {
 
   return result;
 };
+
+
 
 const creatAdmintoDB = async (req: Request) => {
   const file = req.file;
