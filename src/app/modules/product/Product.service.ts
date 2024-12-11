@@ -3,6 +3,7 @@ import prisma from "../../../shared/prisma";
 
 
 const createProduct = async (payLoad:Product) => {
+    console.log(payLoad)
     
     await prisma.product.findFirstOrThrow({
         where: {
@@ -24,5 +25,6 @@ const getAllProduct = async()=> {
 
 
 export const ProuctService = {
-    createProduct
+    createProduct,
+    getAllProduct
 }

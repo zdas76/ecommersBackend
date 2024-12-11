@@ -1,9 +1,17 @@
+import { Category } from "@prisma/client";
 import prisma from "../../../shared/prisma"
 
 
-const createCategory = async()=> {
+const createCategory = async(payLoad: Category)=> {
+    
+    await prisma.category.findUniqueOrThrow({
+        where: {
+            categoryName: payLoad.categoryName
+        }
+    })
+
     const result = await prisma.category.create({
-        data: data
+        data: payLoad
     })
     
     return result;
