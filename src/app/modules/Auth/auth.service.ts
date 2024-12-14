@@ -25,13 +25,14 @@ const loginUser = async (payLoad: { email: string; passWord: string }) => {
     payLoad.passWord,
     userData.passWord
   );
+console.log(isCorrectPassword)
 
   if (!isCorrectPassword) {
-    throw new ApiErrors(StatusCodes.UNAUTHORIZED, "Your are not Authorized");
+    throw new ApiErrors(StatusCodes.UNAUTHORIZED, "Worng password");
   }
 
   const accessToken = JwtHelpers.generateToken(
-    { email: userData.email, role: userData.role },
+    {id:userData.id, email: userData.email, role: userData.role },
     config.jwt.secret as Secret,
     config.jwt.expires as string
   );
@@ -67,7 +68,7 @@ const refreshToken = async (token: string) => {
   });
 
   const accessToken = JwtHelpers.generateToken(
-    {email: checkUser.email, role: checkUser.role },
+    {id:checkUser.id, email: checkUser.email, role: checkUser.role },
     config.jwt.secret as Secret,
     config.jwt.expires as string
   );
@@ -121,7 +122,7 @@ const forgotPassword = async (playLoad: { email: string }) => {
   });
 
   const resetPasswordToken = JwtHelpers.generateToken(
-    { email: userData.email, role: userData.role },
+    {id:userData.id, email: userData.email, role: userData.role },
     config.jwt.reset_password_secret as Secret,
     config.jwt.reset_password_expires_in as string
   );

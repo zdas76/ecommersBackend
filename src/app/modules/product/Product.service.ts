@@ -8,6 +8,7 @@ import { StatusCodes } from "http-status-codes";
 import { fileUploaders } from "../../../helpers/fileUploaders";
 import { Request } from "express";
 import { IFile } from "../../interfaces/file";
+import { IAuthUser } from "../../interfaces/common";
 
 const createProduct = async (req: Request) => {
   const files = req.files;
@@ -85,7 +86,7 @@ const getAllProduct = async (params: any, paginat: IPaginationOptions) => {
             createdAt: "desc",
           },
   });
-  console.log(result);
+  
   const total = await prisma.product.count({
     where: wehreConditions,
   });
@@ -100,7 +101,100 @@ const getAllProduct = async (params: any, paginat: IPaginationOptions) => {
   };
 };
 
+const getProductById = async(id:string) => {
+
+const result = await prisma.product.findUnique({
+  where: {id},
+  include: {
+    Review: true
+  }
+})
+
+return result;
+}
+
+
+
+const updateProduct = async (id:string, payLoad:Partial<Product | null>) => {
+
+  // const isExist = await prisma.product.findFirst({
+  //   where: {
+  //     id,
+  //     vendorId: data.vendorId,
+  //   },
+  // });
+
+  // if (isExist) {
+  //   throw new ApiErrors(
+  //     StatusCodes.BAD_REQUEST,
+  //     "This prodict already added by this vendor"
+  //   );
+  // }
+
+  const restule = await prisma.product.update({
+    where: {id},
+    data: {
+      title: payLoad?.title,
+      description: payLoad?.description,
+      productImage:payLoad?.productImage,
+      price: payLoad?.price,
+      discount:payLoad?.discount
+    }
+  })  
+
+  return restule;
+}
+
+
+const addQuantity = async(id:string, payLoad: {quantity: number}) => {
+
+    const isExist = await prisma.product.findFirst({
+    where: {
+      id,
+      // vendorId: vendorId,
+    },
+  });
+
+// const newQuantity = 
+
+  const result = await prisma.product.update({
+    where: {id},
+    data: {
+      quantity: 5
+    }
+  })
+}
+
+
+const deleteProductFromDB = async(id:string) => {
+
+   const result = await prisma.$transaction(async(txc)=> {
+      await txc.coupon.deleteMany({
+        where: {
+          productId : id
+        }
+      })
+
+      await txc.review.deleteMany({
+        where: {
+          productId: id
+        }
+      })
+
+      const result = await txc.product.delete({
+        where: {id}
+      })
+      return result
+  })
+
+  return result
+}
+
 export const ProuctService = {
   createProduct,
   getAllProduct,
+  getProductById,
+  updateProduct,
+  addQuantity,
+  deleteProductFromDB
 };

@@ -18,7 +18,11 @@ route.post(
   }
 );
 
+route.get("/:id", ProductController.gerProductById);
+
 route.get("/", ProductController.getAllProduct);
+
+route.delete('/' )
 
 // route.get("/:id", CategoryController.getOneCagetory);
 

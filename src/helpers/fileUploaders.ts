@@ -67,7 +67,6 @@ const storage = multer.diskStorage({
     new Promise<string>((resolve, reject) => {
       cloudinary.uploader.upload(
         file.path,
-        
         (error, result) => {
         
           fs.unlinkSync(file.path);

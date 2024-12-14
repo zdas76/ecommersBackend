@@ -8,6 +8,7 @@ const loginUser = catchAsync(async (req, res) => {
   const result = await Authervices.loginUser(req.body);
 
   const { refreshToken } = result;
+  
   res.cookie("refreshToken", refreshToken, {
     secure: false,
     httpOnly: true,

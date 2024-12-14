@@ -111,6 +111,7 @@ model Product {
   price        Float
   quantity     Int
   discount     Float?
+  isDeleted   Boolean @default(false)
   categoryId   String
   vendorId     String
   createdAt    DateTime @default(now())
